@@ -11,6 +11,7 @@ import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.InputListener;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.utils.Array;
+import com.mygame.gdx.GameWorld.GameWorld;
 
 /**
  * Created by ssata_000 on 2/22/2017.
@@ -19,19 +20,16 @@ import com.badlogic.gdx.utils.Array;
 public class Bg extends Actor {
     public Texture texture;
 
-    private Geo geo;
-    private Array<Enemy> enemies = new Array<Enemy>();
+    private GameWorld gm;
 
-    private float travelled = 0f;
-
-    public Bg(float x, float y, int width, int height, Geo geo) {
+    public Bg(float x, float y, int width, int height, GameWorld gm) {
         /* Set Geo's orientation and variables */
         this.setX(x);
         this.setY(y);
         this.setWidth(width);
         this.setHeight(height);
         this.setRotation(0);
-        this.geo = geo;
+        this.gm = gm;
         texture = new Texture(Gdx.files.internal("Background.png"));
 
         addListener(new InputListener() {
@@ -43,80 +41,9 @@ public class Bg extends Actor {
 
     }
 
+    /* Calls the main scroll master to progress in game. */
     private void scrollMaster() {
-        float duration = 2f;
-        float dist = geo.scroll(duration);
-        travelled += dist;
-        if (enemies != null && enemies.size > 0) {
-            for (Enemy enemy : enemies) {
-                if (enemy.getY() > 2000f) {
-                    enemy.remove();
-                    enemies.removeValue(enemy, true);
-                    return;
-                }
-                enemy.scroll(dist, duration);
-            }
-        }
-    }
-
-    private int level = 0;
-    private int levelScore = 100;
-    private int score;
-    private Preferences prefs = Gdx.app.getPreferences("GeoFall");
-
-    /* Handles all level balances and creation. */
-    public Stage levelManage(Stage stage, float delta, Geo geo) {
-        Rectangle geoBounds = geo.getBounds();
-        for (Enemy enemy : enemies) {
-            if (geoBounds.overlaps(enemy.getBounds())) {
-                geo.death();
-                return stage;
-            }
-        }
-        if (level == 0) {
-            if (!prefs.contains("HighScore")) {
-                prefs.putInteger("HighScore", 0);
-            } else {
-                score = prefs.getInteger("HighScore");
-            }
-            if (score < levelScore) {
-                if (enemies.size < MathUtils.round(travelled / 1000)) {
-                    Enemy temp = new Enemy(MathUtils.random(1,2), level);
-                    enemies.add(temp);
-                    stage.addActor(temp);
-                }
-            } else {
-                level += 1;
-            }
-        } else if (level < 5) {
-            if (score < levelScore * level + levelScore) {
-                if (enemies.size < MathUtils.round(travelled / 900)) {
-                    Enemy temp = new Enemy(MathUtils.random(1,2), level);
-                    enemies.add(temp);
-                    stage.addActor(temp);
-                }
-            } else {
-                level += 1;
-            }
-        } else if (level < 10) {
-            if (score < levelScore * level + levelScore) {
-                if (enemies.size < MathUtils.round(travelled / 800)) {
-                    Enemy temp = new Enemy(MathUtils.random(1,2), level);
-                    enemies.add(temp);
-                    stage.addActor(temp);
-                }
-            } else {
-                level += 1;
-            }
-        }
-        return stage;
-    }
-
-    /* Allows geo to update score */
-    public void addScore(int newScore) {
-        if (newScore >= 0) {
-            score += newScore;
-        }
+        gm.scrollMaster();
     }
 
     @Override
