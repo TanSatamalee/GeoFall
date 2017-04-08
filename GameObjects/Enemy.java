@@ -4,9 +4,12 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.Batch;
 import com.badlogic.gdx.math.Interpolation;
+import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.actions.Actions;
+import com.badlogic.gdx.scenes.scene2d.actions.MoveByAction;
+import com.badlogic.gdx.scenes.scene2d.actions.ParallelAction;
 import com.badlogic.gdx.scenes.scene2d.actions.RepeatAction;
 import com.badlogic.gdx.scenes.scene2d.actions.SequenceAction;
 
@@ -27,6 +30,7 @@ public class Enemy extends Actor {
         float[] enemy = {0f, 0f, 0, 0};
         float[] enemy1 = {50f, 50f, 50, 50};
         float[] enemy2 = {1030f, 50f, 50, 50};
+        float[] enemy3 = {MathUtils.random(20f, 1060f), 0f, 50, 50};
 
         /* Set Geo's orientation and variables */
         this.setRotation(0);
@@ -45,13 +49,25 @@ public class Enemy extends Actor {
             realTime = 2f;
         }
         if (type == 1) {
+            /* Enemy starts off on the left and moves horizontally */
             enemy = enemy1;
             SequenceAction sa = new SequenceAction(Actions.moveBy(980f, 0f, realTime, Interpolation.fade), Actions.moveBy(-980, 0f, realTime, Interpolation.fade));
             ra.setAction(sa);
         } else if (type == 2) {
+            /* Enemy starts off on the right and moves horizontally */
             enemy = enemy2;
             SequenceAction sa = new SequenceAction(Actions.moveBy(-980f, 0f, realTime, Interpolation.fade), Actions.moveBy(980f, 0f, realTime, Interpolation.fade));
             ra.setAction(sa);
+        } else if (type == 3) {
+            /* Enemy starts off at the bottom of the screen and moves vertically */
+            enemy = enemy3;
+            MoveByAction ma = Actions.moveBy(0f, 2000f, realTime);
+            ra.setAction(ma);
+        } else if (type == 4) {
+            /* Enemy starts off at the bottom of the screen and moves diagonally */
+            enemy = enemy3;
+            ParallelAction pa = Actions.parallel(Actions.moveBy(0f, 2000f, realTime), Actions.moveBy(MathUtils.random(-900f, 900f), 0f, realTime));
+            ra.setAction(pa);
         }
         Enemy.this.addAction(ra);
 
@@ -78,12 +94,12 @@ public class Enemy extends Actor {
 
     @Override
     public void act(float delta) {
-        if (this.geo.getBounds().overlaps(this.getBounds())) {
-            geo.death();
-        }
         bounds.setX((int)getX());
         bounds.setY((int)getY());
         super.act(delta);
+        if (this.geo.getBounds().overlaps(this.getBounds())) {
+            geo.death();
+        }
     }
 
 }

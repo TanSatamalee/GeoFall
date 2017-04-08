@@ -34,6 +34,7 @@ public class End extends Actor {
 
     /* Changes the game state to RESTART. */
     private void endGame() {
+        System.out.println("END GAME");
         gw.restartGame();
     }
 

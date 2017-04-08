@@ -93,7 +93,6 @@ public class GameWorld {
 
         /* Prepares the Game Screen to be played on. */
         game_stage = new Stage(new ScreenViewport());
-        Gdx.input.setInputProcessor(game_stage);
         geo = new Geo(300f, 1800f, 400, 50, this);
         bg = new Bg(0f, 0f, 1080, 2000, this);
         sc = new Scorer(0);
@@ -103,7 +102,6 @@ public class GameWorld {
 
         /* Prepares the End Screen. */
         end_screen = new Stage(new ScreenViewport());
-        Gdx.input.setInputProcessor(end_screen);
         end = new End(0f, 0f, 1080, 2000, this);
         end_screen.addActor(end);
     }
@@ -134,6 +132,7 @@ public class GameWorld {
 
     /* Acts and draws the game stage. */
     private void updateRunning(float delta) {
+        Gdx.input.setInputProcessor(game_stage);
         runTime += delta;
         if (delta > 0.15f) {
             delta = 0.15f;
@@ -145,6 +144,7 @@ public class GameWorld {
 
     /* Displays the end screen */
     private void updateEnd(float delta) {
+        Gdx.input.setInputProcessor(end_screen);
         runTime += delta;
         if (delta > 0.15f) {
             delta = 0.15f;
@@ -185,7 +185,7 @@ public class GameWorld {
         } else {
             if (enemyPass < level * 10) {
                 if (enemies.size < MathUtils.round(travelled / 800)) {
-                    Enemy temp = new Enemy(geo, MathUtils.random(1,2), level);
+                    Enemy temp = new Enemy(geo, MathUtils.random(1,4), level);
                     enemies.add(temp);
                     game_stage.addActor(temp);
                 }

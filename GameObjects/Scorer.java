@@ -19,7 +19,6 @@ public class Scorer extends Actor {
     @Override
     public void draw(Batch batch, float alpha) {
         font.draw(batch, "Score: " + Integer.toString(score), 10f, 1900f);
-        System.out.println(score);
     }
 
     public void changeScore(int score) {
