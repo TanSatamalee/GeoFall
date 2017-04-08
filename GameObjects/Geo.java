@@ -1,36 +1,25 @@
 package com.mygame.gdx.GameObjects;
 
-/**
- * Created by ssata_000 on 1/27/2017.
- */
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.Batch;
 import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.scenes.scene2d.Actor;
-import com.badlogic.gdx.scenes.scene2d.InputEvent;
-import com.badlogic.gdx.scenes.scene2d.InputListener;
 import com.badlogic.gdx.scenes.scene2d.actions.*;
 import com.badlogic.gdx.math.Interpolation;
 import com.mygame.gdx.GameWorld.GameWorld;
 
-import static jdk.nashorn.internal.runtime.regexp.joni.Syntax.Java;
-
 public class Geo extends Actor{
 
-    /* Gaming Variables*/
+    /* If Geo has already hit an enemy or not. */
     private boolean isAlive;
 
-    /* Keeps track of which side is hanging */
-    private int hanger;
-
-    /* Features of Main Sprite */
+    /* Geo's Dimensions. */
     private int widthGeo;
-    private int heightGeo;
 
-    float currAngle = 0f;
-    Rectangle bounds;
+    /* Geo's hitbox. */
+    private Rectangle bounds;
 
     private GameWorld gw;
 
@@ -45,9 +34,7 @@ public class Geo extends Actor{
         this.setHeight(height);
         this.setRotation(0);
         widthGeo = width;
-        heightGeo = height;
         isAlive = true;
-        hanger = 1;
         bounds = new Rectangle((int)x, (int)y, width, height);
         this.gw = gw;
 
@@ -77,12 +64,13 @@ public class Geo extends Actor{
         }
     }
 
+    /* Returns Geo's hitbox. */
     public Rectangle getBounds() {
         return bounds;
     }
 
     /* Handles constant swinging motion */
-    public RepeatAction swing() {
+    private RepeatAction swing() {
         if (Geo.this.getY() < 1500f) {
             Geo.this.addAction(Actions.moveBy(0f, 300f, 1f));
         }
@@ -92,9 +80,6 @@ public class Geo extends Actor{
             return null;
         }
 
-        /* Updates which side is swinging */
-        hanger += 1;
-
         /* Changes the orientation before calculating the new rotation angle */
         float currentAngle = Geo.this.getRotation();
         currentAngle += 180f;
@@ -102,11 +87,9 @@ public class Geo extends Actor{
             currentAngle += 360f;
         }
         currentAngle = currentAngle % 360f;
-        if (!changeOrigin(hanger)) {
+        if (!changeOrigin()) {
             return null;
         }
-        System.out.println("HELLO" + currentAngle);
-        currAngle = currentAngle;
         float angle;
         if (currentAngle < 90f) {
             angle = 2 * currentAngle + 180f;
@@ -148,7 +131,7 @@ public class Geo extends Actor{
     }
 
     /* Changes Geo's origin so that he may swing from the correct side */
-    private boolean changeOrigin(int hanger) {
+    private boolean changeOrigin() {
         float currentAngle = Geo.this.getRotation();
         float lengthChange = widthGeo * 4 / 5;
         float posX = Geo.this.getX();

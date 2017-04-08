@@ -1,24 +1,15 @@
 package com.mygame.gdx.GameObjects;
 
 import com.badlogic.gdx.Gdx;
-import com.badlogic.gdx.Preferences;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.Batch;
-import com.badlogic.gdx.math.MathUtils;
-import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.InputListener;
-import com.badlogic.gdx.scenes.scene2d.Stage;
-import com.badlogic.gdx.utils.Array;
 import com.mygame.gdx.GameWorld.GameWorld;
 
-/**
- * Created by ssata_000 on 2/22/2017.
- */
-
 public class Bg extends Actor {
-    public Texture texture;
+    private Texture texture;
 
     private GameWorld gm;
 

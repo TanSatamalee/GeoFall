@@ -1,9 +1,5 @@
 package com.mygame.gdx.GameWorld;
 
-/**
- * Created by ssata_000 on 1/27/2017.
- */
-
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Preferences;
 import com.badlogic.gdx.audio.Sound;
@@ -15,11 +11,11 @@ import com.badlogic.gdx.graphics.g2d.TextureRegion;
 
 public class AssetLoader {
 
-    public static Texture texture;
+    private static Texture texture;
 /*
     public static TextureRegion one, two, threeA, threeB, fourA, fourB, fourC, fourD
 */
-    public static Preferences prefs;
+    private static Preferences prefs;
 
     public static void load() {
         /*

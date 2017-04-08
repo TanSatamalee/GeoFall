@@ -8,12 +8,11 @@ import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.viewport.ScreenViewport;
 import com.mygame.gdx.GameObjects.Bg;
+import com.mygame.gdx.GameObjects.End;
 import com.mygame.gdx.GameObjects.Enemy;
 import com.mygame.gdx.GameObjects.Geo;
-
-/**
- * Created by ssata_000 on 1/27/2017.
- */
+import com.mygame.gdx.GameObjects.Scorer;
+import com.mygame.gdx.GameObjects.Start;
 
 public class GameWorld {
 
@@ -29,19 +28,23 @@ public class GameWorld {
     private Stage end_screen;
 
     /* Actors that will be on the Game Stage. */
+    private Start start;
+    private End end;
     private Bg bg;
     private Geo geo;
+    private Scorer sc;
     private Array<Enemy> enemies = new Array<Enemy>();
 
     /* Variables that involve scrolling in game. */
     private float travelled = 0f;
-    float duration;
-    float dist;
+    private float duration;
+    private float dist;
 
     /* Variables involved in game mechanics and scoring. */
     private int level = 0;
-    private int levelScore = 100;
+    private int enemyPass = 0;
     private int score;
+    private int highScore;
     private Preferences prefs = Gdx.app.getPreferences("GeoFall");
 
     /* States that the game may be in. */
@@ -85,19 +88,24 @@ public class GameWorld {
         /* Prepares the Start Screen. */
         start_screen = new Stage(new ScreenViewport());
         Gdx.input.setInputProcessor(start_screen);
+        start = new Start(0f, 0f, 1080, 2000, this);
+        start_screen.addActor(start);
 
         /* Prepares the Game Screen to be played on. */
         game_stage = new Stage(new ScreenViewport());
         Gdx.input.setInputProcessor(game_stage);
         geo = new Geo(300f, 1800f, 400, 50, this);
         bg = new Bg(0f, 0f, 1080, 2000, this);
+        sc = new Scorer(0);
         game_stage.addActor(bg);
         game_stage.addActor(geo);
+        game_stage.addActor(sc);
 
         /* Prepares the End Screen. */
         end_screen = new Stage(new ScreenViewport());
         Gdx.input.setInputProcessor(end_screen);
-
+        end = new End(0f, 0f, 1080, 2000, this);
+        end_screen.addActor(end);
     }
 
     /* Displays the start screen. */
@@ -117,10 +125,14 @@ public class GameWorld {
         Gdx.input.setInputProcessor(game_stage);
         geo = new Geo(300f, 1800f, 400, 50, this);
         bg = new Bg(0f, 0f, 1080, 2000, this);
+        sc = new Scorer(0);
         game_stage.addActor(bg);
         game_stage.addActor(geo);
+        game_stage.addActor(sc);
+        runGame();
     }
 
+    /* Acts and draws the game stage. */
     private void updateRunning(float delta) {
         runTime += delta;
         if (delta > 0.15f) {
@@ -162,41 +174,18 @@ public class GameWorld {
 
     /* Handles all level balances and creation. */
     public void levelManage() {
-        Rectangle geoBounds = geo.getBounds();
-        for (Enemy enemy : enemies) {
-            if (geoBounds.overlaps(enemy.getBounds())) {
-                geo.death();
-            }
-        }
         if (level == 0) {
             if (!prefs.contains("HighScore")) {
                 prefs.putInteger("HighScore", 0);
+                highScore = 0;
             } else {
-                score = prefs.getInteger("HighScore");
+                highScore = prefs.getInteger("HighScore");
             }
-            if (score < levelScore) {
-                if (enemies.size < MathUtils.round(travelled / 1000)) {
-                    Enemy temp = new Enemy(MathUtils.random(1,2), level);
-                    enemies.add(temp);
-                    game_stage.addActor(temp);
-                }
-            } else {
-                level += 1;
-            }
-        } else if (level < 5) {
-            if (score < levelScore * level + levelScore) {
-                if (enemies.size < MathUtils.round(travelled / 900)) {
-                    Enemy temp = new Enemy(MathUtils.random(1,2), level);
-                    enemies.add(temp);
-                    game_stage.addActor(temp);
-                }
-            } else {
-                level += 1;
-            }
-        } else if (level < 10) {
-            if (score < levelScore * level + levelScore) {
+            level += 1;
+        } else {
+            if (enemyPass < level * 10) {
                 if (enemies.size < MathUtils.round(travelled / 800)) {
-                    Enemy temp = new Enemy(MathUtils.random(1,2), level);
+                    Enemy temp = new Enemy(geo, MathUtils.random(1,2), level);
                     enemies.add(temp);
                     game_stage.addActor(temp);
                 }
@@ -211,16 +200,25 @@ public class GameWorld {
         duration = 2f;
         dist = geo.scroll(duration);
         travelled += dist;
+
+        /* Increases score for distance travelled. */
+        addScore(MathUtils.round(dist/100f));
+
+        /* Checks to see if any enemies are past the screen and if they are then remove them from the stage. */
         if (enemies != null && enemies.size > 0) {
             for (Enemy enemy : enemies) {
                 if (enemy.getY() > 2000f) {
                     enemy.remove();
                     enemies.removeValue(enemy, true);
-                    return;
+                    enemyPass += 1;
+                    /* Increases score for each enemy passed. */
+                    addScore(10);
+                } else {
+                    enemy.scroll(dist, duration);
                 }
-                enemy.scroll(dist, duration);
             }
         }
+        sc.changeScore(score);
     }
 
     /* Allows geo to update score */

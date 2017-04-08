@@ -4,33 +4,30 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.Batch;
 import com.badlogic.gdx.math.Interpolation;
-import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.scenes.scene2d.Actor;
-import com.badlogic.gdx.scenes.scene2d.InputEvent;
-import com.badlogic.gdx.scenes.scene2d.InputListener;
 import com.badlogic.gdx.scenes.scene2d.actions.Actions;
 import com.badlogic.gdx.scenes.scene2d.actions.RepeatAction;
 import com.badlogic.gdx.scenes.scene2d.actions.SequenceAction;
-import com.badlogic.gdx.utils.Array;
 
-/**
- * Created by ssata_000 on 2/20/2017.
- */
 
 public class Enemy extends Actor {
 
     /* Features of Main Sprite */
-    Rectangle bounds;
-    private float[] enemy = {0f, 0f, 0, 0};
-    private float[] enemy1 = {50f, 50f, 50, 50};
-    private float[] enemy2 = {1030f, 50f, 50, 50};
-
+    private Rectangle bounds;
 
     /* Imports Texture for Main Sprite */
     private Texture texture;
 
-    public Enemy(int type, int level) {
+    /* Geo reference for collision detection */
+    private Geo geo;
+
+    public Enemy(Geo geo, int type, int level) {
+        this.geo = geo;
+        float[] enemy = {0f, 0f, 0, 0};
+        float[] enemy1 = {50f, 50f, 50, 50};
+        float[] enemy2 = {1030f, 50f, 50, 50};
+
         /* Set Geo's orientation and variables */
         this.setRotation(0);
         texture = new Texture(Gdx.files.internal("Enemy" + type + ".png"));
@@ -81,6 +78,9 @@ public class Enemy extends Actor {
 
     @Override
     public void act(float delta) {
+        if (this.geo.getBounds().overlaps(this.getBounds())) {
+            geo.death();
+        }
         bounds.setX((int)getX());
         bounds.setY((int)getY());
         super.act(delta);
