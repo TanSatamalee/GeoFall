@@ -4,7 +4,9 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.Batch;
 import com.badlogic.gdx.math.Interpolation;
+import com.badlogic.gdx.math.Intersector;
 import com.badlogic.gdx.math.MathUtils;
+import com.badlogic.gdx.math.Polygon;
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.actions.Actions;
@@ -17,7 +19,7 @@ import com.badlogic.gdx.scenes.scene2d.actions.SequenceAction;
 public class Enemy extends Actor {
 
     /* Features of Main Sprite */
-    private Rectangle bounds;
+    private Polygon bounds;
 
     /* Imports Texture for Main Sprite */
     private Texture texture;
@@ -75,14 +77,15 @@ public class Enemy extends Actor {
         this.setY(enemy[1]);
         this.setWidth((int)enemy[2]);
         this.setHeight((int)enemy[3]);
-        bounds = new Rectangle(getX(), getY(), getWidth(), getHeight());
+        bounds = new Polygon(new float[]{0,0,getWidth(),0,getWidth(),getHeight(),0,getHeight()});
+        bounds.setPosition(getX(), getY());
     }
 
     public void scroll(float y, float duration) {
         Enemy.this.addAction(Actions.moveBy(0f, y, duration));
     }
 
-    public Rectangle getBounds() {
+    public Polygon getBounds() {
         return bounds;
     }
 
@@ -94,10 +97,9 @@ public class Enemy extends Actor {
 
     @Override
     public void act(float delta) {
-        bounds.setX((int)getX());
-        bounds.setY((int)getY());
         super.act(delta);
-        if (this.geo.getBounds().overlaps(this.getBounds())) {
+        bounds.setPosition(getX(),getY());
+        if (Intersector.overlapConvexPolygons(this.geo.getBounds(),this.getBounds())) {
             geo.death();
         }
     }

@@ -4,6 +4,7 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.Batch;
 import com.badlogic.gdx.math.MathUtils;
+import com.badlogic.gdx.math.Polygon;
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.actions.*;
@@ -19,7 +20,7 @@ public class Geo extends Actor{
     private int widthGeo;
 
     /* Geo's hitbox. */
-    private Rectangle bounds;
+    private Polygon bounds;
 
     private GameWorld gw;
 
@@ -35,7 +36,9 @@ public class Geo extends Actor{
         this.setRotation(0);
         widthGeo = width;
         isAlive = true;
-        bounds = new Rectangle((int)x, (int)y, width, height);
+        bounds = new Polygon(new float[]{0,0,width,0,width,height,0,height});
+        bounds.setPosition(x, y);
+        bounds.setOrigin(width/10, height/2);
         this.gw = gw;
 
         /* Starts swinging once sprite has been created */
@@ -65,7 +68,7 @@ public class Geo extends Actor{
     }
 
     /* Returns Geo's hitbox. */
-    public Rectangle getBounds() {
+    public Polygon getBounds() {
         return bounds;
     }
 
@@ -116,12 +119,12 @@ public class Geo extends Actor{
 
     @Override
     public void act(float delta) {
-        bounds.setX((int)getX());
-        bounds.setY((int)getY());
         if (!isAlive) {
             return;
         }
         super.act(delta);
+        bounds.setPosition(getX(),getY());
+        bounds.setRotation(getRotation());
     }
 
     /* Used to signal if game is over */
