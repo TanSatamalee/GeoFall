@@ -27,8 +27,14 @@ public class Enemy extends Actor {
     /* Geo reference for collision detection */
     private Geo geo;
 
-    public Enemy(Geo geo, int type, int level) {
+    /* Allows for level management */
+    float horizontalMove = 4f;
+    float verticalMove = 4f;
+
+    public Enemy(Geo geo, int type, int level, float hm, float vm) {
         this.geo = geo;
+        horizontalMove = hm;
+        verticalMove = vm;
         float[] enemy = {0f, 0f, 0, 0};
         float[] enemy1 = {50f, 50f, 50, 50};
         float[] enemy2 = {1030f, 50f, 50, 50};
@@ -40,35 +46,25 @@ public class Enemy extends Actor {
 
         RepeatAction ra = new RepeatAction();
         ra.setCount(RepeatAction.FOREVER);
-        float realTime;
-        if (level < 10) {
-            realTime = 4f;
-        } else if (level < 20) {
-            realTime = 3f;
-        } else if (level < 30) {
-            realTime = 2f;
-        } else {
-            realTime = 2f;
-        }
         if (type == 1) {
             /* Enemy starts off on the left and moves horizontally */
             enemy = enemy1;
-            SequenceAction sa = new SequenceAction(Actions.moveBy(980f, 0f, realTime, Interpolation.fade), Actions.moveBy(-980, 0f, realTime, Interpolation.fade));
+            SequenceAction sa = new SequenceAction(Actions.moveBy(980f, 0f, horizontalMove, Interpolation.fade), Actions.moveBy(-980, 0f, horizontalMove, Interpolation.fade));
             ra.setAction(sa);
         } else if (type == 2) {
             /* Enemy starts off on the right and moves horizontally */
             enemy = enemy2;
-            SequenceAction sa = new SequenceAction(Actions.moveBy(-980f, 0f, realTime, Interpolation.fade), Actions.moveBy(980f, 0f, realTime, Interpolation.fade));
+            SequenceAction sa = new SequenceAction(Actions.moveBy(-980f, 0f, horizontalMove, Interpolation.fade), Actions.moveBy(980f, 0f, horizontalMove, Interpolation.fade));
             ra.setAction(sa);
         } else if (type == 3) {
             /* Enemy starts off at the bottom of the screen and moves vertically */
             enemy = enemy3;
-            MoveByAction ma = Actions.moveBy(0f, 2000f, realTime);
+            MoveByAction ma = Actions.moveBy(0f, 2000f, verticalMove);
             ra.setAction(ma);
         } else if (type == 4) {
             /* Enemy starts off at the bottom of the screen and moves diagonally */
             enemy = enemy3;
-            ParallelAction pa = Actions.parallel(Actions.moveBy(0f, 2000f, realTime), Actions.moveBy(MathUtils.random(-900f, 900f), 0f, realTime));
+            ParallelAction pa = Actions.parallel(Actions.moveBy(0f, 2000f, verticalMove), Actions.moveBy(MathUtils.random(-900f, 900f), 0f, horizontalMove));
             ra.setAction(pa);
         }
         Enemy.this.addAction(ra);

@@ -3,7 +3,6 @@ package com.mygame.gdx.GameWorld;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Preferences;
 import com.badlogic.gdx.math.MathUtils;
-import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.viewport.ScreenViewport;
@@ -43,6 +42,7 @@ public class GameWorld {
     /* Variables involved in game mechanics and scoring. */
     private int level = 0;
     private int enemyPass = 0;
+    float lastEnemyDist = 0;
     private int score;
     private int highScore;
     private Preferences prefs = Gdx.app.getPreferences("GeoFall");
@@ -174,6 +174,41 @@ public class GameWorld {
 
     /* Handles all level balances and creation. */
     public void levelManage() {
+        /* Variables that change to determine level difficulty. */
+        float spacing = 100f; /* Controls enemy spawning rate. */
+        int levelScaling = 10; /* Controls the speed increments of enemy objects. */
+        int swingScaling = 10; /* Controls the swing speed increments of Geo. */
+
+
+        /* Parameters that allow for movement and timing. */
+        float hm = 4f - level / levelScaling; /* Controls the horizontal movement of enemies. */
+        if (hm <= 0f) {
+            hm = 1 / levelScaling;
+        }
+
+        float vm = 4f - level / levelScaling; /* Controls the vertical movement of enemies. */
+        if (vm <= 0f) {
+            vm = 1 / levelScaling;
+        }
+
+        float swingSpeed = 4f - level / swingScaling; /* Controls swing speed of Geo. */
+        if (swingSpeed <= 0f) {
+            swingSpeed = 1 / swingScaling;
+        }
+
+        int width; /* Controls width change of Geo. */
+        if (level % 15 < 5) {
+            width = 400;
+        } else if (level % 15 < 10) {
+            width = 200;
+        } else {
+            width = 600;
+        }
+
+
+        /* Applies level changes and spawns enemies. */
+        geo.changeWidth(width);
+        geo.changeSwingSpeed(swingSpeed);
         if (level == 0) {
             if (!prefs.contains("HighScore")) {
                 prefs.putInteger("HighScore", 0);
@@ -184,10 +219,12 @@ public class GameWorld {
             level += 1;
         } else {
             if (enemyPass < level * 10) {
-                if (enemies.size < MathUtils.round(travelled / 800)) {
-                    Enemy temp = new Enemy(geo, MathUtils.random(1,4), level);
+                int enemyNum = MathUtils.random(1,4);
+                if (lastEnemyDist < spacing * enemyPass) {
+                    Enemy temp = new Enemy(geo, enemyNum, level, hm, vm);
                     enemies.add(temp);
                     game_stage.addActor(temp);
+                    lastEnemyDist = travelled;
                 }
             } else {
                 level += 1;

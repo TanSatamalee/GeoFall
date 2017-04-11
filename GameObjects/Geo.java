@@ -12,12 +12,15 @@ import com.badlogic.gdx.math.Interpolation;
 import com.mygame.gdx.GameWorld.GameWorld;
 
 public class Geo extends Actor{
+    /* Allows for level management */
+    float swingTime = 4f;
 
     /* If Geo has already hit an enemy or not. */
     private boolean isAlive;
 
     /* Geo's Dimensions. */
     private int widthGeo;
+    private int heightGeo;
 
     /* Geo's hitbox. */
     private Polygon bounds;
@@ -35,6 +38,7 @@ public class Geo extends Actor{
         this.setHeight(height);
         this.setRotation(0);
         widthGeo = width;
+        heightGeo = height;
         isAlive = true;
         bounds = new Polygon(new float[]{0,0,width,0,width,height,0,height});
         bounds.setPosition(x, y);
@@ -101,8 +105,7 @@ public class Geo extends Actor{
         }
         RepeatAction ra = new RepeatAction();
         ra.setCount(RepeatAction.FOREVER);
-        float time = 2f;
-        float realTime = time / 180f * angle;
+        float realTime = swingTime / 180f * angle;
         if (realTime < 0f) {
             realTime = realTime * -1f;
         }
@@ -157,5 +160,17 @@ public class Geo extends Actor{
             return false;
         }
         return true;
+    }
+
+    /* Allows levelManager to change the swing speed. */
+    public void changeSwingSpeed(float x) {
+        swingTime = x;
+    }
+
+    /* Allows levelManager to change the width of Geo. */
+    public void changeWidth(int x) {
+        this.setWidth(x);
+        widthGeo = x;
+        bounds = new Polygon(new float[]{0,0,widthGeo,0,widthGeo,heightGeo,0,heightGeo});
     }
 }
